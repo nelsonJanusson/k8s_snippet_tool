@@ -1,6 +1,7 @@
 pub mod file_writer;
 mod k8s_strings;
 
+use k8s_strings::cParams;
 use rdev::{listen, Event, EventType};
 use std::{mem, process};
 
@@ -19,11 +20,8 @@ impl State {
         return format!("{}{}", "\t".repeat((self.tabs.max(0)) as usize), self.word);
     }
 
-    fn generate_deployment(&mut self) {
-        let _ = file_writer::write(
-            &self.get_filepath(),
-            &k8s_strings::get_deployment(self.word.clone()),
-        );
+    fn generate_deployment(&mut self, deployment: &mut cParams) {
+        let _ = file_writer::write(&self.get_filepath(), &deployment.get_deployment());
     }
 
     fn assign(&mut self) {
@@ -77,6 +75,8 @@ impl State {
 }
 
 fn main() {
+    let mut deployment = cParams::new();
+
     let _ = file_writer::make_file("test.yml");
     let mut state = State {
         word: String::new(),
@@ -84,13 +84,13 @@ fn main() {
         filepath: String::from("test.yml").into_bytes(),
     };
 
-    if let Err(error) = listen(move |event| callback(event, &mut state)) {
+    if let Err(error) = listen(move |event| callback(event, &mut state, &mut deployment)) {
         println!("Error: {:?}", error);
         process::exit(1);
     }
 }
 
-fn callback(event: Event, state: &mut State) {
+fn callback(event: Event, state: &mut State, deployment: &mut cParams) {
     if let EventType::KeyPress(_) = event.event_type {
         if let Some(character) = event.name.and_then(|f| f.parse().ok()) {
             match character {
@@ -101,7 +101,7 @@ fn callback(event: Event, state: &mut State) {
                 '(' => state.start_list_b(),
                 ')' => state.end_list_b(),
                 '-' => state.add_list_b_item(),
-                '!' => state.generate_deployment(),
+                '!' => state.generate_deployment(deployment),
                 _ => state.new_character(character),
             }
         }
