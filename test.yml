@@ -1,0 +1,4 @@
+kind: deployment
+metadata:
+	name: myapp
+kind: deployment
