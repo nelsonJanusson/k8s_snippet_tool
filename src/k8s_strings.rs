@@ -1,8 +1,12 @@
+pub(crate) fn getDeployment(name: String) -> String {
+    let str: String = format!("{name}");
 
+    let deployment: String = format!(
+        r#"
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: "testrun"
+  name: {}
   labels:
     app: nginx
 spec:
@@ -20,4 +24,9 @@ spec:
         image: nginx:1.14.2
         ports:
         - containerPort: 80
+"#,
+        str
+    );
 
+    return deployment;
+}

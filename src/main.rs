@@ -1,4 +1,5 @@
 pub mod file_writer;
+mod k8s_strings;
 
 use rdev::{listen, Event, EventType};
 use std::{mem, process};
@@ -16,6 +17,13 @@ impl State {
 
     fn get_formatted_line(&mut self) -> String {
         return format!("{}{}", "\t".repeat((self.tabs.max(0)) as usize), self.word);
+    }
+
+    fn generate_deployment(&mut self) {
+        let _ = file_writer::write(
+            &self.get_filepath(),
+            &k8s_strings::getDeployment(self.word.clone()),
+        );
     }
 
     fn assign(&mut self) {
@@ -93,6 +101,7 @@ fn callback(event: Event, state: &mut State) {
                 '(' => state.start_list_b(),
                 ')' => state.end_list_b(),
                 '-' => state.add_list_b_item(),
+                '!' => state.generate_deployment(),
                 _ => state.new_character(character),
             }
         }
