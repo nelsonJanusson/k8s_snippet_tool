@@ -23,7 +23,7 @@ impl State {
     }
 
     fn end_assignment(&mut self) {
-        let result: String = get_formatted_line(&mut self);
+        let result: String = self.get_formatted_line();
         let _ = file_writer::write(&self.get_filepath(), &result);
         self.word.clear();
     }
@@ -34,7 +34,7 @@ impl State {
 
     fn start_block(&mut self) {
         self.word.push(':');
-        let result: String = get_formatted_line(&mut self);
+        let result: String = self.get_formatted_line();
         let _ = file_writer::write(&self.get_filepath(), &result);
         self.word.clear();
         self.tabs += 1;
@@ -42,7 +42,7 @@ impl State {
 
     fn start_list_b(&mut self) {
         self.word.push(':');
-        let result: String = get_formatted_line(&mut self);
+        let result: String = self.get_formatted_line();
         let _ = file_writer::write(&self.get_filepath(), &result);
         self.word.clear();
         self.word.push('-');
@@ -50,14 +50,14 @@ impl State {
     }
 
     fn end_list_b(&mut self) {
-        let result: String = get_formatted_line(&mut self);
+        let result: String = self.get_formatted_line();
         let _ = file_writer::write(&self.get_filepath(), &result);
         self.word.clear();
         self.tabs -= 1;
     }
 
     fn add_list_b_item(&mut self) {
-        let result: String = get_formatted_line(&mut self);
+        let result: String = self.get_formatted_line();
         let _ = file_writer::write(&self.get_filepath(), &result);
         self.word.clear();
         self.word.push('-');
