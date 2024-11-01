@@ -22,7 +22,7 @@ impl State {
     fn generate_deployment(&mut self) {
         let _ = file_writer::write(
             &self.get_filepath(),
-            &k8s_strings::getDeployment(self.word.clone()),
+            &k8s_strings::get_deployment(self.word.clone()),
         );
     }
 

@@ -1,4 +1,4 @@
-pub(crate) fn getDeployment(name: String) -> String {
+pub(crate) fn get_deployment(name: String) -> String {
     let str: String = format!("{name}");
 
     let deployment: String = format!(
@@ -6,22 +6,22 @@ pub(crate) fn getDeployment(name: String) -> String {
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {}
+  name: {0}
   labels:
-    app: nginx
+    app: {0}
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: nginx
+      app: {0}
   template:
     metadata:
       labels:
-        app: nginx
+        app: {0}
     spec:
       containers:
-      - name: nginx
-        image: nginx:1.14.2
+      - name: {0}
+        image: {0}
         ports:
         - containerPort: 80
 "#,
