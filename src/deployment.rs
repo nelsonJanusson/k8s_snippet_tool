@@ -1,4 +1,4 @@
-pub(crate) struct cParams {
+pub(crate) struct deployment_container {
     apiVersion: String,
     metadata_name: String,
     metadata_labels_app: String,
@@ -10,9 +10,9 @@ pub(crate) struct cParams {
     spec_template_spec_containers_ports_containerPort: u32,
 }
 
-impl cParams {
-    pub(crate) fn new() -> cParams {
-        cParams {
+impl deployment_container {
+    pub(crate) fn new() -> deployment_container {
+        deployment_container {
             apiVersion: String::from("apps/v1"),
             metadata_name: String::new(),
             metadata_labels_app: String::new(),
@@ -26,7 +26,7 @@ impl cParams {
     }
 
     pub(crate) fn get_deployment(&mut self) -> String {
-        let deployment: String = format!(
+        let deployment_string: String = format!(
             r#"
 apiVersion: {0}
 kind: Deployment
@@ -61,6 +61,6 @@ spec:
             self.spec_template_spec_containers_ports_containerPort,
         );
 
-        return deployment;
+        return deployment_string;
     }
 }

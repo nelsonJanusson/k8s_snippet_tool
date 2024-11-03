@@ -1,81 +1,15 @@
+mod deployment;
 pub mod file_writer;
-mod k8s_strings;
+mod input_state;
 
-use k8s_strings::cParams;
+use deployment::deployment_container;
+use input_state::State;
 use rdev::{listen, Event, EventType};
+use std::io;
 use std::{mem, process};
 
-struct State {
-    word: String,
-    tabs: i32,
-    filepath: Vec<u8>,
-}
-
-impl State {
-    fn get_filepath(&mut self) -> String {
-        String::from_utf8(unsafe { mem::transmute(self.filepath.clone()) }).unwrap()
-    }
-
-    fn get_formatted_line(&mut self) -> String {
-        return format!("{}{}", "\t".repeat((self.tabs.max(0)) as usize), self.word);
-    }
-
-    fn generate_deployment(&mut self, deployment: &mut cParams) {
-        let _ = file_writer::write(&self.get_filepath(), &deployment.get_deployment());
-    }
-
-    fn assign(&mut self) {
-        self.word.push_str(": ");
-    }
-
-    fn end_assignment(&mut self) {
-        let result: String = self.get_formatted_line();
-        let _ = file_writer::write(&self.get_filepath(), &result);
-        self.word.clear();
-    }
-
-    fn end_block(&mut self) {
-        self.tabs -= 1;
-    }
-
-    fn start_block(&mut self) {
-        self.word.push(':');
-        let result: String = self.get_formatted_line();
-        let _ = file_writer::write(&self.get_filepath(), &result);
-        self.word.clear();
-        self.tabs += 1;
-    }
-
-    fn start_list_b(&mut self) {
-        self.word.push(':');
-        let result: String = self.get_formatted_line();
-        let _ = file_writer::write(&self.get_filepath(), &result);
-        self.word.clear();
-        self.word.push('-');
-        self.tabs += 1;
-    }
-
-    fn end_list_b(&mut self) {
-        let result: String = self.get_formatted_line();
-        let _ = file_writer::write(&self.get_filepath(), &result);
-        self.word.clear();
-        self.tabs -= 1;
-    }
-
-    fn add_list_b_item(&mut self) {
-        let result: String = self.get_formatted_line();
-        let _ = file_writer::write(&self.get_filepath(), &result);
-        self.word.clear();
-        self.word.push('-');
-    }
-
-    fn new_character(&mut self, character: char) {
-        self.word.push(character);
-    }
-}
-
 fn main() {
-    let mut deployment = cParams::new();
+    let mut deployment = deployment_container::new();
 
     let _ = file_writer::make_file("test.yml");
     let mut state = State {
@@ -90,7 +24,7 @@ fn main() {
     }
 }
 
-fn callback(event: Event, state: &mut State, deployment: &mut cParams) {
+fn callback(event: Event, state: &mut State, deployment: &mut deployment_container) {
     if let EventType::KeyPress(_) = event.event_type {
         if let Some(character) = event.name.and_then(|f| f.parse().ok()) {
             match character {
